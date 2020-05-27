@@ -19,7 +19,7 @@ class Student:
             self.score)    
       
     @staticmethod
-    def st_id(s_id):
+    def is_in(s_id):
         x = read_data(f'SELECT student_id FROM Student WHERE student_id = {s_id}')
         if len(x) != 0:
             return True
@@ -61,11 +61,11 @@ class Student:
             self.student_id = crsr.lastrowid
             
         else:
-            if self.st_id(self.student_id):
+            if self.is_in(self.student_id):
                 query ='UPDATE Student SET name="{}", age = {}, score = {} WHERE student_id = {}'.format(self.name,self.age,self.score,self.student_id)
                 crsr.execute(query)
             else:
-                query = 'INSERT INTO Student(student_id, name, age, score) values({},"{}", {}, {})'.format(self.student_id,self.name,self.age,self.score)
+                query = 'INSERT INTO Student(student_id, name, age, score) values({},"{}", {}, {})'.format(self.student_id, self.name, self.age, self.score)
                 crsr.execute(query)
         
         connection.commit() 
@@ -81,49 +81,46 @@ class Student:
             a = key
             b = value
             
-        n = a.split('__')    
+            n = a.split('__')    
         
-        if n[0] not in ('student_id', 'name', 'age', 'score'):
-            raise InvalidField
-    
-        if a in ('student_id','name','age','score'): 
-           sql_query = read_data(f"SELECT * FROM Student WHERE {a} = '{b}'")
-        
-        elif n[1] == 'lt':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} < '{b}'")
+            if n[0] not in ('student_id', 'name', 'age', 'score'):
+                raise InvalidField
             
-        elif n[1] == 'lte':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} <= '{b}'")
+            if a in ('student_id','name','age','score'): 
+               sql_query = read_data(f"SELECT * FROM Student WHERE {a} = '{b}'")
             
-        elif n[1] == 'gt':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} > '{b}'")
+            elif n[1] == 'lt':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} < '{b}'")
+                
+            elif n[1] == 'lte':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} <= '{b}'")
+                
+            elif n[1] == 'gt':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} > '{b}'")
+                
+            elif n[1] == 'gte':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} >= '{b}'")
+                
+            elif n[1] == 'neq':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} != '{b}'")
+                
+            elif n[1] == 'in':
+                b=tuple(b)
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} in {b}")
+                
+            elif n[1] == 'contains':
+                sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} LIKE '%{b}%'")
             
-        elif n[1] == 'gte':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} >= '{b}'")
             
-        elif n[1] == 'neq':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} != '{b}'")
-            
-        elif n[1] == 'in':
-            b=tuple(b)
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} in {b}")
-            
-        elif n[1] == 'contains':
-            sql_query = read_data(f"SELECT * FROM Student WHERE {n[0]} LIKE '%{b}%'")
-        
-        if len(sql_query) == 0:
-            return []
-        else:
-            li = []
-            
-        for i in sql_query:    
-            qc =Student(i[1],i[2],i[3])    
-            qc.student_id=i[0]
-            li.append(qc)
+            if len(sql_query) == 0:
+                return []
+            else:
+                li = []
+                for i in sql_query:    
+                    qc =Student(i[1],i[2],i[3])    
+                    qc.student_id=i[0]
+                    li.append(qc)
         return li
-        
-    
-        
         
 def write_data(sql_query):
     import sqlite3

@@ -11,8 +11,7 @@ class Student:
         self.age = age
         self.score = score
         self.student_id = None
-        
-        
+         
     @classmethod
     def get(cls, **kwargs):
         
@@ -21,6 +20,7 @@ class Student:
             y = v
         if x not in ('student_id','name','age','score'):
             raise InvalidField
+            
         query = read_data(f'SELECT * FROM Student WHERE {x} =\'{y}\'')
             
         if len(query) == 0:
